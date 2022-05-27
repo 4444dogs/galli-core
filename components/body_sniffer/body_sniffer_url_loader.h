@@ -59,6 +59,7 @@ class BodySnifferURLLoader : public network::mojom::URLLoaderClient,
       const GURL& response_url,
       mojo::PendingRemote<network::mojom::URLLoaderClient>
           destination_url_loader_client,
+      network::mojom::URLResponseHeadPtr response_head,
       scoped_refptr<base::SequencedTaskRunner> task_runner);
 
   // network::mojom::URLLoaderClient implementation (called from the source of
@@ -74,8 +75,6 @@ class BodySnifferURLLoader : public network::mojom::URLLoaderClient,
                         OnUploadProgressCallback ack_callback) override;
   void OnReceiveCachedMetadata(mojo_base::BigBuffer data) override;
   void OnTransferSizeUpdated(int32_t transfer_size_diff) override;
-  void OnStartLoadingResponseBody(
-      mojo::ScopedDataPipeConsumerHandle body) override;
   void OnComplete(const network::URLLoaderCompletionStatus& status) override;
 
   // network::mojom::URLLoader implementation (called from the destination of
@@ -109,6 +108,7 @@ class BodySnifferURLLoader : public network::mojom::URLLoaderClient,
       this};
   mojo::Remote<network::mojom::URLLoader> source_url_loader_;
   mojo::Remote<network::mojom::URLLoaderClient> destination_url_loader_client_;
+  network::mojom::URLResponseHeadPtr response_head_;
 
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
 

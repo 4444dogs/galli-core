@@ -31,7 +31,11 @@ void BodySnifferThrottle::InterceptAndStartLoader(
                 std::move(body));
 }
 
-void BodySnifferThrottle::Resume() {
+void BodySnifferThrottle::Resume(
+    network::mojom::URLResponseHeadPtr response_head,
+    mojo::ScopedDataPipeConsumerHandle body) {
+  delegate_->UpdateDeferredResponseHead(std::move(response_head),
+                                        std::move(body));
   delegate_->Resume();
 }
 

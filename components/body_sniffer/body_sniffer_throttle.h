@@ -26,7 +26,8 @@ class BodySnifferThrottle : public blink::URLLoaderThrottle,
   ~BodySnifferThrottle() override;
   BodySnifferThrottle& operator=(const BodySnifferThrottle&) = delete;
 
-  void Resume();
+  void Resume(network::mojom::URLResponseHeadPtr response_head,
+              mojo::ScopedDataPipeConsumerHandle body);
 
  protected:
   void WillProcessResponse(const GURL& response_url,

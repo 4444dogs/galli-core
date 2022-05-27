@@ -17,6 +17,7 @@
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
 #include "services/network/public/mojom/url_loader.mojom.h"
+#include "services/network/public/mojom/url_response_head.mojom-forward.h"
 #include "url/gurl.h"
 
 namespace body_sniffer {
@@ -64,6 +65,7 @@ class SpeedReaderURLLoader : public body_sniffer::BodySnifferURLLoader {
   CreateLoader(base::WeakPtr<body_sniffer::BodySnifferThrottle> throttle,
                base::WeakPtr<SpeedreaderResultDelegate> delegate,
                const GURL& response_url,
+               network::mojom::URLResponseHeadPtr response_head,
                scoped_refptr<base::SingleThreadTaskRunner> task_runner,
                SpeedreaderRewriterService* rewriter_service);
 
@@ -74,6 +76,7 @@ class SpeedReaderURLLoader : public body_sniffer::BodySnifferURLLoader {
       const GURL& response_url,
       mojo::PendingRemote<network::mojom::URLLoaderClient>
           destination_url_loader_client,
+      network::mojom::URLResponseHeadPtr response_head,
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
       SpeedreaderRewriterService* rewriter_service);
 

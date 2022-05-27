@@ -12,6 +12,7 @@
 #include "brave/components/de_amp/browser/de_amp_throttle.h"
 #include "brave/components/de_amp/browser/de_amp_util.h"
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
+#include "services/network/public/mojom/url_response_head.mojom.h"
 
 namespace de_amp {
 
@@ -28,6 +29,7 @@ std::tuple<mojo::PendingRemote<network::mojom::URLLoader>,
 DeAmpURLLoader::CreateLoader(
     base::WeakPtr<DeAmpThrottle> throttle,
     const GURL& response_url,
+    network::mojom::URLResponseHeadPtr response_head,
     scoped_refptr<base::SequencedTaskRunner> task_runner) {
   mojo::PendingRemote<network::mojom::URLLoader> url_loader;
   mojo::PendingRemote<network::mojom::URLLoaderClient> url_loader_client;
@@ -35,9 +37,9 @@ DeAmpURLLoader::CreateLoader(
       url_loader_client_receiver =
           url_loader_client.InitWithNewPipeAndPassReceiver();
 
-  auto loader = base::WrapUnique(
-      new DeAmpURLLoader(std::move(throttle), response_url,
-                         std::move(url_loader_client), std::move(task_runner)));
+  auto loader = base::WrapUnique(new DeAmpURLLoader(
+      std::move(throttle), response_url, std::move(url_loader_client),
+      std::move(response_head), std::move(task_runner)));
   DeAmpURLLoader* loader_rawptr = loader.get();
   mojo::MakeSelfOwnedReceiver(std::move(loader),
                               url_loader.InitWithNewPipeAndPassReceiver());
@@ -50,11 +52,13 @@ DeAmpURLLoader::DeAmpURLLoader(
     const GURL& response_url,
     mojo::PendingRemote<network::mojom::URLLoaderClient>
         destination_url_loader_client,
+    network::mojom::URLResponseHeadPtr response_head,
     scoped_refptr<base::SequencedTaskRunner> task_runner)
     : body_sniffer::BodySnifferURLLoader(
           throttle,
           response_url,
           std::move(destination_url_loader_client),
+          std::move(response_head),
           task_runner),
       de_amp_throttle_(throttle) {}
 

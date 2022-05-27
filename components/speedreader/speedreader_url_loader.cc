@@ -21,6 +21,7 @@
 #include "brave/components/speedreader/speedreader_rewriter_service.h"
 #include "brave/components/speedreader/speedreader_throttle.h"
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
+#include "services/network/public/mojom/url_response_head.mojom.h"
 
 namespace speedreader {
 
@@ -38,6 +39,7 @@ SpeedReaderURLLoader::CreateLoader(
     base::WeakPtr<body_sniffer::BodySnifferThrottle> throttle,
     base::WeakPtr<SpeedreaderResultDelegate> delegate,
     const GURL& response_url,
+    network::mojom::URLResponseHeadPtr response_head,
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     SpeedreaderRewriterService* rewriter_service) {
   mojo::PendingRemote<network::mojom::URLLoader> url_loader;
@@ -48,7 +50,8 @@ SpeedReaderURLLoader::CreateLoader(
 
   auto loader = base::WrapUnique(new SpeedReaderURLLoader(
       std::move(throttle), std::move(delegate), response_url,
-      std::move(url_loader_client), std::move(task_runner), rewriter_service));
+      std::move(url_loader_client), std::move(response_head),
+      std::move(task_runner), rewriter_service));
   SpeedReaderURLLoader* loader_rawptr = loader.get();
   mojo::MakeSelfOwnedReceiver(std::move(loader),
                               url_loader.InitWithNewPipeAndPassReceiver());
@@ -62,12 +65,14 @@ SpeedReaderURLLoader::SpeedReaderURLLoader(
     const GURL& response_url,
     mojo::PendingRemote<network::mojom::URLLoaderClient>
         destination_url_loader_client,
+    network::mojom::URLResponseHeadPtr response_head,
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     SpeedreaderRewriterService* rewriter_service)
     : body_sniffer::BodySnifferURLLoader(
           throttle,
           response_url,
           std::move(destination_url_loader_client),
+          std::move(response_head),
           task_runner),
       delegate_(delegate),
       rewriter_service_(rewriter_service) {}

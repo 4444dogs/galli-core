@@ -16,6 +16,7 @@
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
 #include "services/network/public/mojom/url_loader.mojom.h"
+#include "services/network/public/mojom/url_response_head.mojom-forward.h"
 #include "url/gurl.h"
 
 namespace de_amp {
@@ -34,6 +35,7 @@ class DeAmpURLLoader : public body_sniffer::BodySnifferURLLoader {
                     DeAmpURLLoader*>
   CreateLoader(base::WeakPtr<DeAmpThrottle> throttle,
                const GURL& response_url,
+               network::mojom::URLResponseHeadPtr response_head,
                scoped_refptr<base::SequencedTaskRunner> task_runner);
 
  private:
@@ -41,6 +43,7 @@ class DeAmpURLLoader : public body_sniffer::BodySnifferURLLoader {
                  const GURL& response_url,
                  mojo::PendingRemote<network::mojom::URLLoaderClient>
                      destination_url_loader_client,
+                 network::mojom::URLResponseHeadPtr response_head,
                  scoped_refptr<base::SequencedTaskRunner> task_runner);
 
   void OnBodyReadable(MojoResult) override;

@@ -234,6 +234,7 @@ public class BraveEthereumPermissionPromptDialog
             mModalDialogManager.dismissDialog(
                     mPropertyModel, DialogDismissalCause.NEGATIVE_BUTTON_CLICKED);
         }
+        Utils.calculateWalletBadgeVisibility();
     }
 
     @Override

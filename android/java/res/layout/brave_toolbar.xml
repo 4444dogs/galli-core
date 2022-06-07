@@ -27,6 +27,18 @@
           android:layout_gravity="center"
           android:contentDescription="@string/accessibility_toolbar_btn_brave_wallet" />
 
+      <View
+          android:id="@+id/wallet_notfication_badge"
+          android:layout_width="10dp"
+          android:layout_height="10dp"
+          android:text=""
+          android:layout_marginTop="7dp"
+          android:layout_marginEnd="6dp"
+          android:layout_gravity="end"
+          android:gravity="center"
+          android:visibility="visible"
+          android:background="@drawable/brave_rewards_circle"/>    
+
       <org.chromium.chrome.browser.BraveBadge
             android:id="@+id/brave_wallet_badge_small"
             android:layout_width="16dp"

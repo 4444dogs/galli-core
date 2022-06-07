@@ -74,6 +74,7 @@ public class UnlockWalletFragment extends CryptoOnboardingFragment {
             if (keyringService != null) {
                 keyringService.unlock(mUnlockWalletPassword.getText().toString(), result -> {
                     if (result) {
+                        Utils.calculateWalletBadgeVisibility();
                         Utils.clearClipboard(mUnlockWalletPassword.getText().toString(), 0);
                         mUnlockWalletPassword.setText(null);
                         if (onNextPage != null) {

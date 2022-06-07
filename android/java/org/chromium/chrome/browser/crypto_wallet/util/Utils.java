@@ -1637,6 +1637,12 @@ public class Utils {
         return chromeActivity.getTabModelSelector().getModel(isIncognito).getProfile();
     }
 
+    public static void calculateWalletBadgeVisibility(){
+        BraveActivity activity = BraveActivity.getBraveActivity();
+        assert activity!=null;
+        activity.calculateWalletBadgeVisibility();
+    }
+
     public static org.chromium.url.internal.mojom.Origin getCurrentMojomOrigin() {
         org.chromium.url.internal.mojom.Origin hostOrigin =
                 new org.chromium.url.internal.mojom.Origin();

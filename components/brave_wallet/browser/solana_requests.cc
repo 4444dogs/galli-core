@@ -21,7 +21,9 @@ std::string getTokenAccountBalance(const std::string& pubkey) {
   return GetJsonRpc1Param("getTokenAccountBalance", pubkey);
 }
 
-std::string sendTransaction(const std::string& signed_tx) {
+std::string sendTransaction(
+    const std::string& signed_tx,
+    absl::optional<SolanaTransaction::SendOptions> options) {
   base::Value params(base::Value::Type::LIST);
   params.Append(signed_tx);
 
@@ -29,6 +31,17 @@ std::string sendTransaction(const std::string& signed_tx) {
   // default value but is slow and deprecated.
   base::Value configuration(base::Value::Type::DICTIONARY);
   configuration.SetStringKey("encoding", "base64");
+
+  if (options) {
+    if (options->max_retries)
+      configuration.SetIntKey("maxRetries", *options->max_retries);
+    if (options->preflight_commitment)
+      configuration.SetStringKey("preflightCommitment",
+                                 *options->preflight_commitment);
+    if (options->skip_preflight)
+      configuration.SetBoolKey("skipPreflight", *options->skip_preflight);
+  }
+
   params.Append(std::move(configuration));
 
   base::Value dictionary = GetJsonRpcDictionary("sendTransaction", &params);

@@ -170,7 +170,14 @@ interface SolanaProvider {
   // { publicKey: <base58 encoded string>,
   //   signature:  <base58 encoded string>
   // }
-  SignAndSendTransaction(string encoded_serialized_msg)
+  // Optional argument send_options:
+  //   { maxRetries?: <number>,
+  //     preflightCommitment?: <string>,
+  //     skipPreflight?: <boolean>
+  //   }
+  SignAndSendTransaction(
+      string encoded_serialized_msg,
+      mojo_base.mojom.DeprecatedDictionaryValue? send_options)
     => (SolanaProviderError error, string error_message,
         mojo_base.mojom.DeprecatedDictionaryValue result);
   // It takes a byte array and an optional display encoding for
@@ -705,6 +712,20 @@ struct DecryptRequest {
   string? unsafe_message;
 };
 
+struct OptionalMaxRetries {
+  int32 max_retries;
+};
+
+struct OptionalSkipPreflight {
+  bool skip_preflight;
+};
+
+struct SolanaSendTransactionOptions {
+  OptionalMaxRetries? max_retries;
+  string? preflight_commitment;
+  OptionalSkipPreflight skip_preflight;
+};
+
 // Deals with the ETH JSON RPC API, as well as things like the user's current
 // network.
 interface JsonRpcService {
@@ -1162,6 +1183,7 @@ struct SolanaTxData {
   uint64 amount;
   TransactionType tx_type;
   array<SolanaInstruction> instructions;
+  SolanaSendTransactionOptions? send_options;
 };
 
 // This is used by BraveWalletProviderDelegate::RequestPermissions for us to

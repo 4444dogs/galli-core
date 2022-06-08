@@ -26,6 +26,22 @@ class SolanaInstruction;
 
 class SolanaTransaction {
  public:
+  struct SendOptions {
+    static absl::optional<SendOptions> FromValue(const base::Value& value);
+    static absl::optional<SendOptions> FromValue(
+        absl::optional<base::Value> value);
+    base::Value ToValue() const;
+    SendOptions();
+    ~SendOptions();
+    SendOptions(const SendOptions&);
+    bool operator==(const SolanaTransaction::SendOptions&) const;
+    bool operator!=(const SolanaTransaction::SendOptions&) const;
+
+    absl::optional<int> max_retries;
+    absl::optional<std::string> preflight_commitment;
+    absl::optional<bool> skip_preflight;
+  };
+
   explicit SolanaTransaction(SolanaMessage&& message);
   SolanaTransaction(const std::string& recent_blockhash,
                     uint64_t last_valid_block_height,
@@ -61,6 +77,9 @@ class SolanaTransaction {
   uint64_t amount() const { return amount_; }
   SolanaMessage* message() { return &message_; }
   const std::vector<uint8_t>& signatures() const { return signatures_; }
+  absl::optional<SolanaTransaction::SendOptions> send_options() const {
+    return send_options_;
+  }
 
   void set_to_wallet_address(const std::string& to_wallet_address) {
     to_wallet_address_ = to_wallet_address;
@@ -71,6 +90,9 @@ class SolanaTransaction {
   void set_tx_type(mojom::TransactionType tx_type);
   void set_lamports(uint64_t lamports) { lamports_ = lamports; }
   void set_amount(uint64_t amount) { amount_ = amount; }
+  void set_send_options(absl::optional<SendOptions> options) {
+    send_options_ = options;
+  }
 
  private:
   FRIEND_TEST_ALL_PREFIXES(SolanaTransactionUnitTest, GetBase64EncodedMessage);
@@ -85,6 +107,10 @@ class SolanaTransaction {
   mojom::TransactionType tx_type_ = mojom::TransactionType::Other;
   uint64_t lamports_ = 0;  // amount of lamports to transfer
   uint64_t amount_ = 0;    // amount of SPL tokens to transfer
+
+  // Currently might be specified by solana.signAndSendTransaction provider
+  // API as the options to be passed to sendTransaction RPC call.
+  absl::optional<SendOptions> send_options_;
 };
 
 }  // namespace brave_wallet

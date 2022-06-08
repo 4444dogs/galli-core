@@ -18,6 +18,77 @@
 
 namespace brave_wallet {
 
+namespace {
+
+constexpr char kSendOptions[] = "send_options";
+constexpr char kMaxRetries[] = "maxRetries";
+constexpr char kPreflightCommitment[] = "preflightCommitment";
+constexpr char kSkipPreflight[] = "skipPreflight";
+
+bool IsValidCommitmentString(const std::string& commitment) {
+  return commitment == "processed" || commitment == "confirmed" ||
+         commitment == "finalized";
+}
+
+}  // namespace
+
+SolanaTransaction::SendOptions::SendOptions() = default;
+SolanaTransaction::SendOptions::~SendOptions() = default;
+SolanaTransaction::SendOptions::SendOptions(
+    const SolanaTransaction::SendOptions&) = default;
+
+bool SolanaTransaction::SendOptions::operator==(
+    const SolanaTransaction::SendOptions& options) const {
+  return max_retries == options.max_retries &&
+         preflight_commitment == options.preflight_commitment &&
+         skip_preflight == options.skip_preflight;
+}
+
+bool SolanaTransaction::SendOptions::operator!=(
+    const SolanaTransaction::SendOptions& options) const {
+  return !operator==(options);
+}
+
+// static
+absl::optional<SolanaTransaction::SendOptions>
+SolanaTransaction::SendOptions::FromValue(absl::optional<base::Value> value) {
+  if (!value)
+    return absl::nullopt;
+  return FromValue(*value);
+}
+
+// static
+absl::optional<SolanaTransaction::SendOptions>
+SolanaTransaction::SendOptions::FromValue(const base::Value& value) {
+  const base::Value::Dict* options_dict = value.GetIfDict();
+  if (!options_dict)
+    return absl::nullopt;
+
+  SolanaTransaction::SendOptions options;
+  auto max_retries = options_dict->FindInt(kMaxRetries);
+  if (max_retries && *max_retries >= 0) {
+    options.max_retries = max_retries;
+  }
+  auto* commitment = options_dict->FindString(kPreflightCommitment);
+  if (commitment && IsValidCommitmentString(*commitment)) {
+    options.preflight_commitment = *commitment;
+  }
+  options.skip_preflight = options_dict->FindBool(kSkipPreflight);
+
+  return options;
+}
+
+base::Value SolanaTransaction::SendOptions::ToValue() const {
+  base::Value options(base::Value::Type::DICTIONARY);
+  if (max_retries)
+    options.SetIntKey(kMaxRetries, *max_retries);
+  if (preflight_commitment)
+    options.SetStringKey(kPreflightCommitment, *preflight_commitment);
+  if (skip_preflight)
+    options.SetBoolKey(kSkipPreflight, *skip_preflight);
+  return options;
+}
+
 SolanaTransaction::SolanaTransaction(
     const std::string& recent_blockhash,
     uint64_t last_valid_block_height,
@@ -43,7 +114,7 @@ bool SolanaTransaction::operator==(const SolanaTransaction& tx) const {
          to_wallet_address_ == tx.to_wallet_address_ &&
          spl_token_mint_address_ == tx.spl_token_mint_address_ &&
          tx_type_ == tx.tx_type_ && lamports_ == tx.lamports_ &&
-         amount_ == tx.amount_;
+         amount_ == tx.amount_ && send_options_ == tx.send_options_;
 }
 
 bool SolanaTransaction::operator!=(const SolanaTransaction& tx) const {
@@ -108,6 +179,20 @@ mojom::SolanaTxDataPtr SolanaTransaction::ToSolanaTxData() const {
   solana_tx_data->tx_type = tx_type_;
   solana_tx_data->lamports = lamports_;
   solana_tx_data->amount = amount_;
+
+  if (send_options_) {
+    auto send_options = mojom::SolanaSendTransactionOptions::New();
+    if (send_options_->max_retries)
+      send_options->max_retries =
+          mojom::OptionalMaxRetries::New(*send_options_->max_retries);
+    if (send_options_->preflight_commitment)
+      send_options->preflight_commitment = *send_options_->preflight_commitment;
+    if (send_options_->skip_preflight)
+      send_options->skip_preflight =
+          mojom::OptionalSkipPreflight::New(*send_options_->skip_preflight);
+    solana_tx_data->send_options = std::move(send_options);
+  }
+
   return solana_tx_data;
 }
 
@@ -120,6 +205,8 @@ base::Value SolanaTransaction::ToValue() const {
   dict.SetIntKey("tx_type", static_cast<int>(tx_type_));
   dict.SetStringKey("lamports", base::NumberToString(lamports_));
   dict.SetStringKey("amount", base::NumberToString(amount_));
+  if (send_options_)
+    dict.SetKey(kSendOptions, send_options_->ToValue());
 
   return dict;
 }
@@ -177,6 +264,9 @@ absl::optional<SolanaTransaction> SolanaTransaction::FromValue(
   if (!amount_string || !base::StringToUint64(*amount_string, &amount))
     return absl::nullopt;
   tx.set_amount(amount);
+  const base::Value* send_options_value = value.FindDictKey(kSendOptions);
+  if (send_options_value)
+    tx.set_send_options(SendOptions::FromValue(*send_options_value));
 
   return tx;
 }
@@ -195,6 +285,23 @@ std::unique_ptr<SolanaTransaction> SolanaTransaction::FromSolanaTxData(
   tx->set_tx_type(solana_tx_data->tx_type);
   tx->set_lamports(solana_tx_data->lamports);
   tx->set_amount(solana_tx_data->amount);
+
+  SendOptions options;
+  if (solana_tx_data->send_options) {
+    if (solana_tx_data->send_options->max_retries &&
+        solana_tx_data->send_options->max_retries->max_retries >= 0) {
+      options.max_retries =
+          solana_tx_data->send_options->max_retries->max_retries;
+    }
+    if (solana_tx_data->send_options->skip_preflight) {
+      options.skip_preflight =
+          solana_tx_data->send_options->skip_preflight->skip_preflight;
+    }
+    options.preflight_commitment =
+        solana_tx_data->send_options->preflight_commitment;
+  }
+  tx->set_send_options(options);
+
   return tx;
 }
 

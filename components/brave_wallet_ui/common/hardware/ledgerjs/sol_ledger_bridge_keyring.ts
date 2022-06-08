@@ -97,7 +97,7 @@ export default class SolanaLedgerKeyring implements LedgerSolanaKeyring {
       const sol: Sol = this.app
       const rawTxBytes = Buffer.from(rawTxBase64, 'base64')
       const signed = await sol.signTransaction(path, rawTxBytes)
-      return { success: true, payload: signed.signature.toString('base64') }
+      return { success: true, payload: signed.signature }
     } catch (e) {
       return { success: false, error: e.message, code: e.statusCode || e.id || e.name }
     }

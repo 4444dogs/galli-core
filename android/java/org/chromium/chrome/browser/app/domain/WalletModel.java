@@ -29,6 +29,7 @@ public class WalletModel {
     private BraveWalletService mBraveWalletService;
     private AssetRatioService mAssetRatioService;
     private final CryptoModel mCryptoModel;
+    private final PendingItemsModel mPendingItemsModel;
     private final KeyringModel mKeyringModel;
     private final MutableLiveData<Boolean> _mWalletIconNotificationVisible =
             new MutableLiveData<>(false);
@@ -50,6 +51,7 @@ public class WalletModel {
         mCryptoModel = new CryptoModel(mTxService, mKeyringService, mBlockchainRegistry,
                 mJsonRpcService, mEthTxManagerProxy, mSolanaTxManagerProxy, mBraveWalletService,
                 mAssetRatioService);
+        mPendingItemsModel = new PendingItemsModel(mKeyringService, mJsonRpcService, mBraveWalletService);
         mKeyringModel = new KeyringModel(keyringService, mCryptoModel.getSharedData());
         init();
     }
@@ -94,6 +96,10 @@ public class WalletModel {
 
     public CryptoModel getCryptoModel() {
         return mCryptoModel;
+    }
+
+    public PendingItemsModel getPendingItemsModel() {
+        return mPendingItemsModel;
     }
 
     public KeyringService getKeyringService() {
@@ -158,55 +164,5 @@ public class WalletModel {
 
     public void setAssetRatioService(AssetRatioService mAssetRatioService) {
         this.mAssetRatioService = mAssetRatioService;
-    }
-
-    public void calculateBadgeVisibilty() {
-        _mWalletIconNotificationVisible.setValue(false);
-
-        assert mKeyringService != null;
-        mKeyringService.isLocked(locked -> {
-            if (locked) {
-                setWalletBadgeVisible();
-            }
-            return;
-        });
-
-        assert mBraveWalletService != null;
-        mBraveWalletService.getPendingSignMessageRequests(requests -> {
-            if (requests != null && requests.length != 0) {
-               setWalletBadgeVisible();
-                return;
-            }
-        });
-        mBraveWalletService.getPendingAddSuggestTokenRequests(requests -> {
-            if (requests != null && requests.length != 0) {
-                setWalletBadgeVisible();
-                return;
-            }
-        });
-        mBraveWalletService.getPendingGetEncryptionPublicKeyRequests(requests -> {
-            if (requests != null && requests.length != 0) {
-                setWalletBadgeVisible();
-                return;
-            }
-        });
-        assert mJsonRpcService != null;
-        mJsonRpcService.getPendingAddChainRequests(networks -> {
-            if (networks != null && networks.length != 0) {
-               setWalletBadgeVisible();
-                return;
-            }
-        });
-        mJsonRpcService.getPendingSwitchChainRequests(requests -> {
-            if (requests != null && requests.length != 0) {
-                setWalletBadgeVisible();
-                return;
-            }
-        });
-    }
-
-    public void setWalletBadgeVisible(){
-        _mWalletIconNotificationVisible.setValue(true);
-        return;
     }
 }

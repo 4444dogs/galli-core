@@ -484,17 +484,17 @@ public abstract class BraveActivity<C extends ChromeActivityComponent> extends C
         }
     }
 
-    public void calculateWalletBadgeVisibility(){
-        assert walletModel!=null;
-        walletModel.calculateBadgeVisibilty();
-        assert walletModel.getCryptoModel()!=null;
-        walletModel.getCryptoModel().init();
-        walletModel.getCryptoModel().getPendingTransactions().observe(this, transactions-> {
-            if (transactions.size()>0) {
-                walletModel.setWalletBadgeVisible();
-                return;
-            }
-        });
+    public void calculateWalletBadgeVisibility() {
+        assert walletModel != null;
+        walletModel.getPendingItemsModel().calculateBadgeVisibilty();
+        // assert walletModel.getCryptoModel() != null;
+        // walletModel.getCryptoModel().init();
+        // walletModel.getCryptoModel().getPendingTransactions().observe(this, transactions -> {
+        //     if (transactions.size() > 0) {
+        //         walletModel.getPendingItemsModel().setWalletBadgeVisible();
+        //         return;
+        //     }
+        // });
     }
 
     private void verifySubscription() {
@@ -679,6 +679,7 @@ public abstract class BraveActivity<C extends ChromeActivityComponent> extends C
         // If active tab is private, set private DSE as an active DSE.
         BraveSearchEngineUtils.updateActiveDSE(tab.isIncognito());
         BraveStatsUtil.removeShareStatsFile();
+        calculateWalletBadgeVisibility();
     }
 
     @Override
@@ -1341,10 +1342,9 @@ public abstract class BraveActivity<C extends ChromeActivityComponent> extends C
                                 BraveWalletDAppsActivity.ActivityType.CONFIRM_TRANSACTION);
                     }
                 });
-        walletModel.mWalletIconNotificationVisible.removeObservers(this);
-        walletModel.mWalletIconNotificationVisible.observe(this, visible -> {
-            showHideWalletBadge(visible);
-        });
+        walletModel.getPendingItemsModel().mWalletIconNotificationVisible.removeObservers(this);
+        walletModel.getPendingItemsModel().mWalletIconNotificationVisible.observe(
+                this, visible -> { showHideWalletBadge(visible); });
     }
 
     private void showBraveRateDialog() {

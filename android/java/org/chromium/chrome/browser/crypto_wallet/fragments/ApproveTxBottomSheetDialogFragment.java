@@ -450,7 +450,6 @@ public class ApproveTxBottomSheetDialogFragment extends BottomSheetDialogFragmen
             if (mTransactionConfirmationListener != null) {
                 mTransactionConfirmationListener.onApproveTransaction();
             }
-            Utils.calculateWalletBadgeVisibility();
             dismiss();
         });
     }

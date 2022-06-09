@@ -23,6 +23,7 @@ import org.chromium.brave_wallet.mojom.TransactionInfo;
 import org.chromium.brave_wallet.mojom.TransactionStatus;
 import org.chromium.brave_wallet.mojom.TxService;
 import org.chromium.chrome.browser.crypto_wallet.util.PendingTxHelper;
+import org.chromium.chrome.browser.crypto_wallet.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

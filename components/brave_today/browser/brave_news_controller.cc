@@ -226,9 +226,9 @@ void BraveNewsController::GetImageData(const GURL& padded_image_url,
   // be a direct image
   const auto file_name = padded_image_url.path();
   const std::string ending = ".pad";
-  const bool is_padded =
+  const bool is_padded = (file_name.length() >= ending.length() &&
       (file_name.compare(file_name.length() - ending.length(), ending.length(),
-                         ending) == 0);
+                         ending) == 0));
   VLOG(3) << "is padded: " << is_padded;
   // Make the request
   private_cdn_request_helper_.DownloadToString(

@@ -170,6 +170,7 @@ public class WalletModel {
             }
             return;
         });
+
         assert mBraveWalletService != null;
         mBraveWalletService.getPendingSignMessageRequests(requests -> {
             if (requests != null && requests.length != 0) {
@@ -204,7 +205,7 @@ public class WalletModel {
         });
     }
 
-    private void setWalletBadgeVisible(){
+    public void setWalletBadgeVisible(){
         _mWalletIconNotificationVisible.setValue(true);
         return;
     }

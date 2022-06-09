@@ -114,8 +114,14 @@ public class SignMessageFragment extends BaseDAppsBottomSheetDialogFragment {
                     (tab, position) -> tab.setText(mTabTitles.get(position)))
                     .attach();
             if (init) {
-                mBtCancel.setOnClickListener(v -> { notifySignMessageRequestProcessed(false); });
-                mBtSign.setOnClickListener(v -> { notifySignMessageRequestProcessed(true); });
+                mBtCancel.setOnClickListener(v -> {
+                    notifySignMessageRequestProcessed(false);
+                    //Utils.calculateWalletBadgeVisibility();
+                });
+                mBtSign.setOnClickListener(v -> {
+                    notifySignMessageRequestProcessed(true);
+                    //Utils.calculateWalletBadgeVisibility();
+                });
             }
             if (mCurrentSignMessageRequest.originInfo != null
                     && URLUtil.isValidUrl(mCurrentSignMessageRequest.originInfo.originSpec)) {

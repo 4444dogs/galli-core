@@ -487,6 +487,14 @@ public abstract class BraveActivity<C extends ChromeActivityComponent> extends C
     public void calculateWalletBadgeVisibility(){
         assert walletModel!=null;
         walletModel.calculateBadgeVisibilty();
+        assert walletModel.getCryptoModel()!=null;
+        walletModel.getCryptoModel().init();
+        walletModel.getCryptoModel().getPendingTransactions().observe(this, transactions-> {
+            if (transactions.size()>0) {
+                walletModel.setWalletBadgeVisible();
+                return;
+            }
+        });
     }
 
     private void verifySubscription() {

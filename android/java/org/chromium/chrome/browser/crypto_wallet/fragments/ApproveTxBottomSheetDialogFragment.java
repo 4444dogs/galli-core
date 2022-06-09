@@ -50,6 +50,8 @@ import org.chromium.chrome.browser.crypto_wallet.util.TokenUtils;
 import org.chromium.chrome.browser.crypto_wallet.util.Utils;
 import org.chromium.url.GURL;
 
+import org.chromium.chrome.browser.crypto_wallet.util.Utils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -448,6 +450,7 @@ public class ApproveTxBottomSheetDialogFragment extends BottomSheetDialogFragmen
             if (mTransactionConfirmationListener != null) {
                 mTransactionConfirmationListener.onApproveTransaction();
             }
+            Utils.calculateWalletBadgeVisibility();
             dismiss();
         });
     }

@@ -34,7 +34,7 @@ class PrefRegistrySyncable;
 
 namespace brave_ads {
 
-using OnGetHistoryCallback = base::OnceCallback<void(const base::Value::List&)>;
+using OnGetHistoryCallback = base::OnceCallback<void(base::Value::List)>;
 
 using OnToggleAdThumbUpCallback = base::OnceCallback<void(const std::string&)>;
 using OnToggleAdThumbDownCallback =
@@ -49,8 +49,8 @@ using OnToggleSavedAdCallback = base::OnceCallback<void(const std::string&)>;
 
 using OnToggleFlaggedAdCallback = base::OnceCallback<void(const std::string&)>;
 
-using OnGetInlineContentAdCallback = base::OnceCallback<
-    void(const bool, const std::string&, const base::Value::Dict&)>;
+using OnGetInlineContentAdCallback =
+    base::OnceCallback<void(const bool, const std::string&, base::Value::Dict)>;
 
 using TriggerSearchResultAdEventCallback =
     base::OnceCallback<void(const bool,

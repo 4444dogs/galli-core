@@ -322,7 +322,7 @@ void BraveNewsController::GetDisplayAd(GetDisplayAdCallback callback) {
   }
   auto on_ad_received = base::BindOnce(
       [](GetDisplayAdCallback callback, const bool success,
-         const std::string& dimensions, const base::Value::Dict& ad_data) {
+         const std::string& dimensions, base::Value::Dict ad_data) {
         if (!success) {
           VLOG(1) << "GetDisplayAd: no ad";
           std::move(callback).Run(nullptr);

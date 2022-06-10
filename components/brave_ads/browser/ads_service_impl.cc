@@ -1342,11 +1342,11 @@ void AdsServiceImpl::OnGetHistory(OnGetHistoryCallback callback,
   for (const auto& item : history.items) {
     base::Value::Dict history_item_dictionary;
     base::Value::Dict ad_content_dictionary =
-        item.ad_content.ToValue().GetIfDict()->Clone();
+        std::move(*item.ad_content.ToValue().GetIfDict());
     history_item_dictionary.SetByDottedPath("adContent",
                                             std::move(ad_content_dictionary));
     base::Value::Dict category_content_dictionary =
-        item.category_content.ToValue().GetIfDict()->Clone();
+        std::move(*item.category_content.ToValue().GetIfDict());
     history_item_dictionary.SetByDottedPath(
         "categoryContent", std::move(category_content_dictionary));
     base::Value::List history_item_list;
